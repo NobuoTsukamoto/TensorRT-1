@@ -32,6 +32,22 @@ size_t detectionInferenceWorkspaceSize(bool shareLocation, int N, int C1, int C2
     return calculateTotalWorkspaceSize(wss, 7);
 }
 
+size_t tfliteDetectionInferenceWorkspaceSize(bool shareLocation, int N, int C1, int C2, int C3, int numClasses, int numPredsPerClass,
+    int topK, DataType DT_BBOX, DataType DT_SCORE, DataType DT_ANCHOR)
+{
+    size_t wss[8];
+    wss[0] = detectionForwardBBoxDataSize(N, C1, DT_BBOX);
+    wss[1] = detectionForwardBBoxPermuteSize(shareLocation, N, C1, DT_BBOX);
+    wss[2] = detectionForwardPreNMSSize(N, C2);
+    wss[3] = detectionForwardPreNMSSize(N, C2);
+    wss[4] = detectionForwardPostNMSSize(N, numClasses, topK);
+    wss[5] = detectionForwardPostNMSSize(N, numClasses, topK);
+    wss[6] = std::max(sortScoresPerClassWorkspaceSize(N, numClasses, numPredsPerClass, DT_SCORE),
+        sortScoresPerImageWorkspaceSize(N, numClasses * topK, DT_SCORE));
+    wss[7] = detectionForwardAnchorSize(N, C3, DT_ANCHOR);
+    return calculateTotalWorkspaceSize(wss, 7);
+}
+
 namespace nvinfer1
 {
 namespace plugin
@@ -50,5 +66,6 @@ size_t detectionInferenceWorkspaceSize(bool shareLocation, int N, int C1, int C2
         sortScoresPerImageWorkspaceSize(N, numClasses * topK, DT_SCORE));
     return calculateTotalWorkspaceSize(wss, 7);
 }
+
 } // namespace plugin
 } // namespace nvinfer1
