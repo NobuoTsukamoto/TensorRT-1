@@ -129,6 +129,7 @@ int TFLiteNMSPlugin::enqueue(
         numPriors,
         param.num_classes,
         param.max_detections,
+        param.back_ground_Label_id,
         param.nms_score_threshold,
         param.nms_iou_threshold,
         param.y_scale,
@@ -273,6 +274,7 @@ TFLiteNMSBasePluginCreator::TFLiteNMSBasePluginCreator() noexcept
     mPluginAttributes.clear();
     mPluginAttributes.emplace_back(PluginField("max_classes_per_detection", nullptr, PluginFieldType::kINT32, 1));
     mPluginAttributes.emplace_back(PluginField("max_detections", nullptr, PluginFieldType::kINT32, 1));
+    mPluginAttributes.emplace_back(PluginField("back_ground_Label_id", nullptr, PluginFieldType::kINT32, 1));
     mPluginAttributes.emplace_back(PluginField("nms_iou_threshold", nullptr, PluginFieldType::kFLOAT32, 1));
     mPluginAttributes.emplace_back(PluginField("nms_score_threshold", nullptr, PluginFieldType::kFLOAT32, 1));
     mPluginAttributes.emplace_back(PluginField("num_classes", nullptr, PluginFieldType::kINT32, 1));
@@ -321,6 +323,11 @@ IPluginV2Ext* TFLiteNMSPluginCreator::createPlugin(const char* name, const Plugi
         {
             ASSERT(fields[i].type == PluginFieldType::kINT32);
             params.max_detections = *(static_cast<const int*>(fields[i].data));
+        }
+        else if (!strcmp(attrName, "back_ground_Label_id"))
+        {
+            ASSERT(fields[i].type == PluginFieldType::kINT32);
+            params.back_ground_Label_id = *(static_cast<const int*>(fields[i].data));
         }
         else if (!strcmp(attrName, "nms_iou_threshold"))
         {

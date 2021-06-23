@@ -225,9 +225,10 @@ pluginStatus_t decodeTFLiteBBoxes(cudaStream_t stream, const int nthreads, const
 
 pluginStatus_t tfliteNMSInference(cudaStream_t stream, const int N, const int perBatchBoxesSize, const int perBatchScoresSize,
                                   const int anchorsSize, const int numPredsPerClass, const int numClasses, const int keepTopK,
-                                  const float scoreThreshold, const float iouThreshold, const float scaleY, const float scaleX,
-                                  const float scaleH, const float scaleW, const DataType DT_BBOX,const void* locData,
-                                  const DataType DT_SCORE, const void* confData, const DataType DT_ANCHORS, const void* anchorData,
+                                  const int backgroundLabelId, const float scoreThreshold, const float iouThreshold,
+                                  const float scaleY, const float scaleX, const float scaleH, const float scaleW,
+                                  const DataType DT_BBOX,const void* locData, const DataType DT_SCORE, const void* confData,
+                                  const DataType DT_ANCHORS, const void* anchorData,
                                   void* keepCount, void* nmsedBoxes, void* nmsedScores, void* nmsedClasses, void* workspace,
                                   bool confSigmoid, bool clipBoxes, int scoreBits);
 

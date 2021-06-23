@@ -55,6 +55,7 @@ set(PLUGIN_LISTS
     resizeNearestPlugin
     specialSlicePlugin
     splitPlugin
+    tfliteNMSPlugin
     )
 
 # Add BERT sources if ${BERT_GENCODES} was populated

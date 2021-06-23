@@ -92,7 +92,6 @@ __launch_bounds__(nthds_per_cta)
         const T_BBOX anchorH = prior_data[box_encoding_idx + 2];
         const T_BBOX anchorW = prior_data[box_encoding_idx + 3];
 
-
         // BBox
         const T_BBOX boxY = loc_data[box_encoding_idx];
         const T_BBOX boxX = loc_data[box_encoding_idx + 1];
@@ -103,8 +102,6 @@ __launch_bounds__(nthds_per_cta)
         // xcenter = x / x_scale * anchor.w + anchor.x;
         // half_h = 0.5*exp(h / h_scale)) * anchor.h;
         // half_w = 0.5*exp(w / w_scale)) * anchor.w;
-        // T_BBOX bboxCenterY = add_fb(div_fb(boxY, mul_fb(T_BBOX(scaleY), anchorH)), anchorY);
-        // T_BBOX bboxCenterX = add_fb(div_fb(boxX, mul_fb(T_BBOX(scaleX), anchorW)), anchorX);
         T_BBOX bboxCenterY = add_fb(mul_fb(div_fb(boxY, T_BBOX(scaleY)), anchorH), anchorY);
         T_BBOX bboxCenterX = add_fb(mul_fb(div_fb(boxX, T_BBOX(scaleX)), anchorW), anchorX);
         T_BBOX harfH = div_fb(mul_fb(exp(div_fb(boxH, T_BBOX(scaleH))), anchorH), T_BBOX(2));
@@ -119,13 +116,11 @@ __launch_bounds__(nthds_per_cta)
         bbox_data[box_encoding_idx + 2] = add_fb(bboxCenterX, harfW);
         bbox_data[box_encoding_idx + 3] = add_fb(bboxCenterY, harfH);
 
-        /*
-        printf("%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n",
-               index, (float)anchorY, (float)anchorX, (float)anchorH, (float)anchorW,
-               (float)boxY, (float)boxX, (float)boxH, (float)boxW,
-               (float)bboxCenterY, (float)bboxCenterX, (float)harfH, (float)harfW,
-               (float)bbox_data[box_encoding_idx], (float)bbox_data[box_encoding_idx + 1], (float)bbox_data[box_encoding_idx + 2], (float)bbox_data[box_encoding_idx + 3]);
-        */
+        // Forcibly restrict bounding boxes to the normalized range [0,1].
+        bbox_data[box_encoding_idx] = saturate(bbox_data[box_encoding_idx]);
+        bbox_data[box_encoding_idx + 1] = saturate(bbox_data[box_encoding_idx + 1]);
+        bbox_data[box_encoding_idx + 2] = saturate(bbox_data[box_encoding_idx + 2]);
+        bbox_data[box_encoding_idx + 3] = saturate(bbox_data[box_encoding_idx + 3]);
     }
 }
 
@@ -135,8 +130,8 @@ pluginStatus_t decodeTFLiteBBoxes_gpu(
     const int nthreads,
     const int num_priors,
     const int num_loc_classes,
-    const void* loc_data,   // bbox
-    const void* prior_data, // anchor
+    const void* loc_data,
+    const void* prior_data,
     const float scaleY,
     const float scaleX,
     const float scaleH,

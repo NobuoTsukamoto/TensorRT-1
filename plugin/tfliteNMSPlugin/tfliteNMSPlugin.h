@@ -34,6 +34,7 @@ struct TFLiteNMSParameters
 {
     int32_t max_classes_per_detection;
     int32_t max_detections;
+    int32_t back_ground_Label_id;
     float nms_iou_threshold;
     float nms_score_threshold;
     float num_classes;

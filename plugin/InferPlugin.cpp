@@ -53,6 +53,7 @@ using namespace nvinfer1::plugin;
 #include "resizeNearestPlugin.h"
 #include "specialSlicePlugin.h"
 #include "split.h"
+#include "tfliteNMSPlugin.h"
 
 using nvinfer1::plugin::RPROIParams;
 
@@ -191,6 +192,7 @@ extern "C"
         initializePlugin<nvinfer1::plugin::RPROIPluginCreator>(logger, libNamespace);
         initializePlugin<nvinfer1::plugin::SpecialSlicePluginCreator>(logger, libNamespace);
         initializePlugin<nvinfer1::plugin::SplitPluginCreator>(logger, libNamespace);
+        initializePlugin<nvinfer1::plugin::TFLiteNMSPluginCreator>(logger, libNamespace);
         return true;
     }
 } // extern "C"

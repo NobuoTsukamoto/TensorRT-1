@@ -62,3 +62,18 @@ size_t detectionForwardPostNMSSize(int N, int numClasses, int topK)
     ASSERT(sizeof(float) == sizeof(int));
     return N * numClasses * topK * sizeof(float);
 }
+
+size_t detectionForwardAnchorSize(int N, int C3, DataType DT_ANCHOR)
+{
+    if (DT_ANCHOR == DataType::kFLOAT)
+    {
+        return N * C3 * sizeof(float);
+    }
+    if (DT_ANCHOR == DataType::kHALF)
+    {
+        return N * C3 * sizeof(__half);
+    }
+    
+    printf("Only FP32/FP16 type anchors supported.\n");
+    return (size_t) -1;
+}

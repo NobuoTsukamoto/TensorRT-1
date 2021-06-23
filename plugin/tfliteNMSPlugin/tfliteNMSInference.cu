@@ -22,7 +22,7 @@
 
 pluginStatus_t tfliteNMSInference(cudaStream_t stream, const int N,    // batch_size
                                   const int perBatchBoxesSize, const int perBatchScoresSize, const int anchorsSize,
-                                  const int numPredsPerClass, const int numClasses, const int keepTopK,
+                                  const int numPredsPerClass, const int numClasses, const int keepTopK, const int backgroundLabelId,
                                   const float scoreThreshold, const float iouThreshold,
                                   const float scaleY, const float scaleX, const float scaleH, const float scaleW,
                                   const DataType DT_BBOX,const void* locData,
@@ -32,7 +32,6 @@ pluginStatus_t tfliteNMSInference(cudaStream_t stream, const int N,    // batch_
                                   bool confSigmoid, bool clipBoxes, int scoreBits)
 {
     const bool shareLocation = true;
-    const int backgroundLabelId = 0;
     bool isNormalized = true;
     const int topK = numPredsPerClass;
     pluginStatus_t status;
@@ -43,18 +42,11 @@ pluginStatus_t tfliteNMSInference(cudaStream_t stream, const int N,    // batch_
     const int numLocClasses = 0;
 
     /*
-     * Anchor data format
-     */
-    size_t anchorsDataSize = detectionForwardBBoxDataSize(1, anchorsSize, DT_ANCHORS);
-    void* anchors = workspace;
-    cudaMemcpyAsync(anchors, anchorData, anchorsDataSize, cudaMemcpyDeviceToDevice, stream);
-
-    /*
      * bboxData format:
      * [batch size, numPriors (per sample), numLocClasses, 4]
      */
     size_t bboxDataSize = detectionForwardBBoxDataSize(N, perBatchBoxesSize, DT_BBOX);
-    void* bboxData = nextWorkspacePtr((int8_t*) anchors, anchorsDataSize);
+    void* bboxData = workspace;
 
     // cudaMemcpyAsync(bboxData, locData, bboxDataSize, cudaMemcpyDeviceToDevice, stream);
     status = decodeTFLiteBBoxes(stream, locCount / 4, numPredsPerClass, numLocClasses, DT_BBOX, locData, anchorData,
@@ -97,6 +89,7 @@ pluginStatus_t tfliteNMSInference(cudaStream_t stream, const int N,    // batch_
     float scoreShift = 0.f;
     if(DT_SCORE == DataType::kHALF && scoreBits > 0 && scoreBits <= 10)
         scoreShift = 1.f;
+
     status = sortScoresPerClass(stream, N, numClasses, numPredsPerClass, backgroundLabelId, scoreThreshold,
         DT_SCORE, scores, indices, sortingWorkspace, scoreBits, scoreShift);
 
