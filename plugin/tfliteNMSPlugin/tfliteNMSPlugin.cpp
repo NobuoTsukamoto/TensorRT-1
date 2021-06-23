@@ -177,8 +177,6 @@ void TFLiteNMSPlugin::configurePlugin(const Dims* inputDims, int nbInputs, const
     const DataType* inputTypes, const DataType* outputTypes, const bool* inputIsBroadcast,
     const bool* outputIsBroadcast, nvinfer1::PluginFormat format, int maxBatchSize) noexcept
 {
-    printf("TFLiteNMSPlugin::configurePlugin 0: %d, 1: %d, 2: %d\n",inputDims[0].nbDims, inputDims[1].nbDims, inputDims[2].nbDims);
-
     ASSERT(nbInputs == 3);
     ASSERT(nbOutputs == 4);
     ASSERT(inputDims[0].nbDims == 3);
@@ -358,13 +356,11 @@ IPluginV2Ext* TFLiteNMSPluginCreator::createPlugin(const char* name, const Plugi
         {
             ASSERT(fields[i].type == PluginFieldType::kFLOAT32);
             params.h_scale = *(static_cast<const float*>(fields[i].data));
-            std::cout << "h_scale: " << params.h_scale << std::endl;
         }
         else if (!strcmp(attrName, "w_scale"))
         {
             ASSERT(fields[i].type == PluginFieldType::kFLOAT32);
             params.w_scale = *(static_cast<const float*>(fields[i].data));
-            std::cout << "w_scale: " << params.w_scale << std::endl;
         }
         else if (!strcmp(attrName, "scoreBits"))
         {

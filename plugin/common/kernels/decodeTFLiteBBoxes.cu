@@ -72,10 +72,6 @@ __launch_bounds__(nthds_per_cta)
         const float scaleW,
         T_BBOX* bbox_data)
 {
-    // printf("blockIdx.x = %d, threadIdx.x = %d, gridDim.x = %d, %d, %d, %d\n",
-    //      blockIdx.x, threadIdx.x, gridDim.x,
-    //      blockIdx.x * nthds_per_cta + threadIdx.x, nthreads, nthds_per_cta * gridDim.x);
-
     // nthds_per_cta = 512
     for (int index = blockIdx.x * nthds_per_cta + threadIdx.x;
          index < nthreads;
