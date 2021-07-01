@@ -270,16 +270,16 @@ TFLiteNMSBasePluginCreator::TFLiteNMSBasePluginCreator() noexcept
     : params{}
 {
     mPluginAttributes.clear();
-    mPluginAttributes.emplace_back(PluginField("max_classes_per_detection", nullptr, PluginFieldType::kINT32, 1));
-    mPluginAttributes.emplace_back(PluginField("max_detections", nullptr, PluginFieldType::kINT32, 1));
-    mPluginAttributes.emplace_back(PluginField("back_ground_Label_id", nullptr, PluginFieldType::kINT32, 1));
-    mPluginAttributes.emplace_back(PluginField("nms_iou_threshold", nullptr, PluginFieldType::kFLOAT32, 1));
-    mPluginAttributes.emplace_back(PluginField("nms_score_threshold", nullptr, PluginFieldType::kFLOAT32, 1));
-    mPluginAttributes.emplace_back(PluginField("num_classes", nullptr, PluginFieldType::kINT32, 1));
-    mPluginAttributes.emplace_back(PluginField("y_scale", nullptr, PluginFieldType::kFLOAT32, 1));
-    mPluginAttributes.emplace_back(PluginField("x_scale", nullptr, PluginFieldType::kFLOAT32, 1));
-    mPluginAttributes.emplace_back(PluginField("h_scale", nullptr, PluginFieldType::kFLOAT32, 1));
-    mPluginAttributes.emplace_back(PluginField("w_scale", nullptr, PluginFieldType::kFLOAT32, 1));
+    mPluginAttributes.emplace_back(PluginField("maxClassesPerDetection", nullptr, PluginFieldType::kINT32, 1));
+    mPluginAttributes.emplace_back(PluginField("keepTopK", nullptr, PluginFieldType::kINT32, 1));
+    mPluginAttributes.emplace_back(PluginField("backgroundLabelId", nullptr, PluginFieldType::kINT32, 1));
+    mPluginAttributes.emplace_back(PluginField("iouThreshold", nullptr, PluginFieldType::kFLOAT32, 1));
+    mPluginAttributes.emplace_back(PluginField("scoreThreshold", nullptr, PluginFieldType::kFLOAT32, 1));
+    mPluginAttributes.emplace_back(PluginField("numClasses", nullptr, PluginFieldType::kINT32, 1));
+    mPluginAttributes.emplace_back(PluginField("yScale", nullptr, PluginFieldType::kFLOAT32, 1));
+    mPluginAttributes.emplace_back(PluginField("xScale", nullptr, PluginFieldType::kFLOAT32, 1));
+    mPluginAttributes.emplace_back(PluginField("hScale", nullptr, PluginFieldType::kFLOAT32, 1));
+    mPluginAttributes.emplace_back(PluginField("wScale", nullptr, PluginFieldType::kFLOAT32, 1));
     mPluginAttributes.emplace_back(PluginField("scoreBits", nullptr, PluginFieldType::kINT32, 1));
     mFC.nbFields = mPluginAttributes.size();
     mFC.fields = mPluginAttributes.data();
@@ -312,52 +312,52 @@ IPluginV2Ext* TFLiteNMSPluginCreator::createPlugin(const char* name, const Plugi
     for (int i = 0; i < fc->nbFields; ++i)
     {
         const char* attrName = fields[i].name;
-        if (!strcmp(attrName, "max_classes_per_detection"))
+        if (!strcmp(attrName, "maxClassesPerDetection"))
         {
             ASSERT(fields[i].type == PluginFieldType::kINT32);
             params.max_classes_per_detection = *(static_cast<const int*>(fields[i].data));
         }
-        else if (!strcmp(attrName, "max_detections"))
+        else if (!strcmp(attrName, "keepTopK"))
         {
             ASSERT(fields[i].type == PluginFieldType::kINT32);
             params.max_detections = *(static_cast<const int*>(fields[i].data));
         }
-        else if (!strcmp(attrName, "back_ground_Label_id"))
+        else if (!strcmp(attrName, "backgroundLabelId"))
         {
             ASSERT(fields[i].type == PluginFieldType::kINT32);
             params.back_ground_Label_id = *(static_cast<const int*>(fields[i].data));
         }
-        else if (!strcmp(attrName, "nms_iou_threshold"))
+        else if (!strcmp(attrName, "iouThreshold"))
         {
             ASSERT(fields[i].type == PluginFieldType::kFLOAT32);
             params.nms_iou_threshold = *(static_cast<const float*>(fields[i].data));
         }
-        else if (!strcmp(attrName, "nms_score_threshold"))
+        else if (!strcmp(attrName, "scoreThreshold"))
         {
             ASSERT(fields[i].type == PluginFieldType::kFLOAT32);
             params.nms_score_threshold = *(static_cast<const float*>(fields[i].data));
         }
-        else if (!strcmp(attrName, "num_classes"))
+        else if (!strcmp(attrName, "numClasses"))
         {
             ASSERT(fields[i].type == PluginFieldType::kINT32);
             params.num_classes = *(static_cast<const int*>(fields[i].data));
         }
-        else if (!strcmp(attrName, "y_scale"))
+        else if (!strcmp(attrName, "yScale"))
         {
             ASSERT(fields[i].type == PluginFieldType::kFLOAT32);
             params.y_scale = *(static_cast<const float*>(fields[i].data));
         }
-        else if (!strcmp(attrName, "x_scale"))
+        else if (!strcmp(attrName, "xScale"))
         {
             ASSERT(fields[i].type == PluginFieldType::kFLOAT32);
             params.x_scale = *(static_cast<const float*>(fields[i].data));
         }
-        else if (!strcmp(attrName, "h_scale"))
+        else if (!strcmp(attrName, "hScale"))
         {
             ASSERT(fields[i].type == PluginFieldType::kFLOAT32);
             params.h_scale = *(static_cast<const float*>(fields[i].data));
         }
-        else if (!strcmp(attrName, "w_scale"))
+        else if (!strcmp(attrName, "wScale"))
         {
             ASSERT(fields[i].type == PluginFieldType::kFLOAT32);
             params.w_scale = *(static_cast<const float*>(fields[i].data));
