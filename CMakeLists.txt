@@ -34,6 +34,7 @@ foreach(TYPE MAJOR MINOR PATCH)
 endforeach(TYPE)
 
 set(TRT_VERSION "${TRT_MAJOR}.${TRT_MINOR}.${TRT_PATCH}" CACHE STRING "TensorRT project version")
+set(ONNX2TRT_VERSION "${TRT_MAJOR}.${TRT_MINOR}.${TRT_PATCH}" CACHE STRING "ONNX2TRT project version")
 set(TRT_SOVERSION "${TRT_SO_MAJOR}" CACHE STRING "TensorRT library so version")
 message("Building for TensorRT version: ${TRT_VERSION}, library version: ${TRT_SOVERSION}")
 
@@ -80,10 +81,9 @@ endif()
 ############################################################################################
 # Dependencies
 
-set(DEFAULT_CUDA_VERSION 11.1)
-set(DEFAULT_CUDNN_VERSION 8.0)
+set(DEFAULT_CUDA_VERSION 11.3.1)
+set(DEFAULT_CUDNN_VERSION 8.2)
 set(DEFAULT_PROTOBUF_VERSION 3.0.0)
-set(DEFAULT_CUB_VERSION 1.8.0)
 
 # Dependency Version Resolution
 set_ifndef(CUDA_VERSION ${DEFAULT_CUDA_VERSION})
@@ -99,7 +99,9 @@ if (BUILD_PLUGINS OR BUILD_PARSERS)
     include(third_party/protobuf.cmake)
 endif()
 if(NOT CUB_ROOT_DIR)
+  if (CUDA_VERSION VERSION_LESS 11.0)
     set(CUB_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/cub CACHE STRING "directory of CUB installation")
+  endif()
 endif()
 
 ## find_package(CUDA) is broken for cross-compilation. Enable CUDA language instead.
