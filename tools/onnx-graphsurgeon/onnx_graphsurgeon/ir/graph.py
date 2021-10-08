@@ -99,7 +99,6 @@ class Graph(object):
         doc_string=None,
         opset=None,
         import_domains=None,
-        ir_version=None,
     ):
         """
         Args:
@@ -120,7 +119,6 @@ class Graph(object):
         self.doc_string = misc.default_value(doc_string, "")
         self.opset = misc.default_value(opset, Graph.DEFAULT_OPSET)
         self.import_domains = import_domains
-        self.ir_version = ir_version
         # Printing graphs can be very expensive
         G_LOGGER.ultra_verbose(lambda: "Created Graph: {:}".format(self))
         # For layer() function
@@ -417,12 +415,23 @@ class Graph(object):
 
         def add_to_tensor_map(tensor):
             if not tensor.is_empty():
-                if check_duplicates and tensor.name in tensor_map and not (tensor_map[tensor.name] is tensor):
-                    G_LOGGER.critical(
-                        "Found distinct tensors that share the same name:\n[id: {:}] {:}\n[id: {:}] {:}".format(
-                            id(tensor_map[tensor.name]), tensor_map[tensor.name], id(tensor), tensor
+                if tensor.name in tensor_map and not (tensor_map[tensor.name] is tensor):
+                    msg = "Found distinct tensors that share the same name:\n[id: {:}] {:}\n[id: {:}] {:}\n".format(
+                        id(tensor_map[tensor.name]),
+                        tensor_map[tensor.name],
+                        id(tensor),
+                        tensor,
+                    )
+                    msg += (
+                        "Note: Producer node(s) of first tensor:\n{:}\nProducer node(s) of second tensor:\n{:}".format(
+                            tensor_map[tensor.name].inputs,
+                            tensor.inputs,
                         )
                     )
+
+                    if check_duplicates:
+                        G_LOGGER.critical(msg)
+                    G_LOGGER.warning(msg)
 
                 tensor_map[tensor.name] = tensor
 
@@ -877,12 +886,15 @@ class Graph(object):
                     the string to generate a name. It will append an index to the end of the provided string
                     to attempt to avoid duplicate tensor names, but since this doesn't guarantee that the name will
                     be unique, you should try to ensure that the string provided is as unique as possible.
+                    To avoid problems with duplicate names, you can generate names yourself and provide ``Tensor`` s.
             - ``numpy.ndarray``:
                     If a NumPy array is provided, this function will generate a Constant tensor
                     using the name prefix: "onnx_graphsurgeon_constant"
             - ``Union[List[Number], Tuple[Number]]``:
                     If a list or tuple of numbers (int or float) is provided, this function will
-                    generate a Constant tensor using the name prefix: "onnx_graphsurgeon_lst_constant"
+                    generate a Constant tensor using the name prefix: "onnx_graphsurgeon_lst_constant".
+                    The values of the tensor will be a 1D array containing the specified values.
+                    The datatype will be either `np.float32` or `np.int64`.
 
         Args:
             inputs (List[Union[Tensor, str, numpy.ndarray]]): The list of inputs
@@ -977,6 +989,7 @@ class Graph(object):
             name=copy.copy(self.name),
             doc_string=copy.copy(self.doc_string),
             opset=copy.copy(self.opset),
+            import_domains=self.import_domains,
         )
 
     def __str__(self):

@@ -3,12 +3,15 @@
 Dates are in YYYY-MM-DD format.
 
 
+## v0.3.13 (2021-09-21)
+### Added
+- `Graph.tensors()` will now display a warning when duplicate tensors are detected in the graph, even if `check_duplicates=False`.
+    As before, when `check_duplicates=True`, it will throw an exception in such cases.
+
+
 ## v0.3.12 (2021-08-24)
 ### Added
 - Added support for `Cast` elision in `fold_constants()`.
-
-### Fixed
-- Fixed a bug where the IR version of an ONNX model would not be preserved during export.
 
 
 ## v0.3.11 (2021-07-14)
