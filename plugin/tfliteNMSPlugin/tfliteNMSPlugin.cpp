@@ -107,7 +107,7 @@ size_t TFLiteNMSPlugin::getWorkspaceSize(int maxBatchSize) const noexcept
 }
 
 int TFLiteNMSPlugin::enqueue(
-    int batchSize, const void* const* inputs, void** outputs, void* workspace, cudaStream_t stream) noexcept
+    int batchSize, const void* const* inputs, void* const* outputs, void* workspace, cudaStream_t stream) noexcept
 {
     const void* const locData = inputs[0];
     const void* const confData = inputs[1];
@@ -200,7 +200,7 @@ void TFLiteNMSPlugin::configurePlugin(const Dims* inputDims, int nbInputs, const
 bool TFLiteNMSPlugin::supportsFormat(DataType type, PluginFormat format) const noexcept
 {
     return ((type == DataType::kHALF || type == DataType::kFLOAT || type == DataType::kINT32)
-        && format == PluginFormat::kNCHW);
+        && format == PluginFormat::kLINEAR);
 }
 
 const char* TFLiteNMSPlugin::getPluginType() const noexcept

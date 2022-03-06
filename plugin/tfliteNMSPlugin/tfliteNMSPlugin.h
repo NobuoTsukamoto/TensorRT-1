@@ -58,7 +58,7 @@ public:
     Dims getOutputDimensions(int index, const Dims* inputs, int nbInputDims) noexcept override;
     bool supportsFormat(DataType type, PluginFormat format) const noexcept override;
     size_t getWorkspaceSize(int maxBatchSize) const noexcept override;
-    int enqueue(int batchSize, const void* const* inputs, void** outputs, void* workspace,
+    int enqueue(int batchSize, const void* const* inputs, void* const* outputs, void* workspace,
         cudaStream_t stream) noexcept override;
     int initialize() noexcept override;
     void terminate() noexcept override;
