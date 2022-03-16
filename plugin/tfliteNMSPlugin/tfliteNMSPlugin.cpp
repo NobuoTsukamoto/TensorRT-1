@@ -71,15 +71,19 @@ Dims TFLiteNMSPlugin::getOutputDimensions(int index, const Dims* inputs, int nbI
 {
     ASSERT(nbInputDims == 3);
     ASSERT(index >= 0 && index < this->getNbOutputs());
-    ASSERT(inputs[0].nbDims == 3);
+    ASSERT(inputs[0].nbDims == 3 || inputs[0].nbDims == 2);
     ASSERT(inputs[1].nbDims == 2 || (inputs[1].nbDims == 3 && inputs[1].d[2] == 1));
     ASSERT(inputs[2].nbDims == 2);
     // boxesSize: number of box coordinates for one sample
-    boxesSize = inputs[0].d[0] * inputs[0].d[1] * inputs[0].d[2];
+    boxesSize = 1;
+    for (auto i = 0; i < inputs[0].nbDims; i++)
+    {
+        boxesSize *= inputs[0].d[i];
+    }
     // scoresSize: number of scores for one sample
     scoresSize = inputs[1].d[0] * inputs[1].d[1];
     // anchorSize: number of anchors for one sample
-    anchorsSize = inputs[2].d[0] * inputs[2].d[2];
+    anchorsSize = inputs[2].d[0] * inputs[2].d[1];
 
     // num_detections
     if (index == 0)
@@ -102,8 +106,8 @@ Dims TFLiteNMSPlugin::getOutputDimensions(int index, const Dims* inputs, int nbI
 
 size_t TFLiteNMSPlugin::getWorkspaceSize(int maxBatchSize) const noexcept
 {
-    return tfliteDetectionInferenceWorkspaceSize(true, maxBatchSize, boxesSize, scoresSize, anchorsSize,
-        param.num_classes, numPriors, param.max_detections, mPrecision, mPrecision, mPrecision);
+   return tfliteDetectionInferenceWorkspaceSize(true, maxBatchSize, boxesSize, scoresSize, anchorsSize,
+        param.num_classes, numPriors, numPriors, mPrecision, mPrecision, mPrecision);
 }
 
 int TFLiteNMSPlugin::enqueue(
@@ -179,21 +183,33 @@ void TFLiteNMSPlugin::configurePlugin(const Dims* inputDims, int nbInputs, const
 {
     ASSERT(nbInputs == 3);
     ASSERT(nbOutputs == 4);
-    ASSERT(inputDims[0].nbDims == 3);
+    ASSERT(inputDims[0].nbDims == 3 || inputDims[0].nbDims == 2);
     ASSERT(inputDims[1].nbDims == 2 || (inputDims[1].nbDims == 3 && inputDims[1].d[2] == 1));
     ASSERT(inputDims[2].nbDims == 2);
     ASSERT(std::none_of(inputIsBroadcast, inputIsBroadcast + nbInputs, [](bool b) { return b; }));
     ASSERT(std::none_of(outputIsBroadcast, outputIsBroadcast + nbInputs, [](bool b) { return b; }));
 
-    boxesSize = inputDims[0].d[0] * inputDims[0].d[1] * inputDims[0].d[2];
+    boxesSize = 1;
+    for (auto i = 0; i < inputDims[0].nbDims; i++)
+    {
+        std::cout << i << ": " << inputDims[0].d[i] << std::endl;
+        boxesSize *= inputDims[0].d[i];
+    }
     scoresSize = inputDims[1].d[0] * inputDims[1].d[1];
     anchorsSize = inputDims[2].d[0] * inputDims[2].d[1];
     // num_boxes
     numPriors = inputDims[0].d[0];
     const int numLocClasses = 1;
     // Third dimension of boxes must be either 1 or num_classes
-    ASSERT(inputDims[0].d[1] == numLocClasses);
-    ASSERT(inputDims[0].d[2] == 4);
+    if (inputDims[0].nbDims == 3)
+    {
+        ASSERT(inputDims[0].d[1] == numLocClasses);
+        ASSERT(inputDims[0].d[2] == 4);
+    }
+    else
+    {
+        ASSERT(inputDims[0].nbDims == 2 && inputDims[0].d[1] == 4);
+    }
     mPrecision = inputTypes[0];
 }
 
@@ -224,6 +240,7 @@ IPluginV2Ext* TFLiteNMSPlugin::clone() const noexcept
     plugin->boxesSize = boxesSize;
     plugin->scoresSize = scoresSize;
     plugin->numPriors = numPriors;
+    plugin->anchorsSize = anchorsSize;
     plugin->setPluginNamespace(mNamespace.c_str());
     plugin->mPrecision = mPrecision;
     plugin->setScoreBits(mScoreBits);

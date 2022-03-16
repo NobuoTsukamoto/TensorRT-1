@@ -33,7 +33,8 @@ pluginStatus_t tfliteNMSInference(cudaStream_t stream, const int N,    // batch_
 {
     const bool shareLocation = true;
     bool isNormalized = true;
-    const int topK = numPredsPerClass;
+    // https://github.com/NVIDIA/TensorRT/issues/893
+    const int topK = (numPredsPerClass > 4096) ? 4096 : numPredsPerClass;
     pluginStatus_t status;
 
     // locCount = batch_size * number_boxes_per_sample

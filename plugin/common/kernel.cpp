@@ -45,7 +45,7 @@ size_t tfliteDetectionInferenceWorkspaceSize(bool shareLocation, int N, int C1, 
     wss[6] = std::max(sortScoresPerClassWorkspaceSize(N, numClasses, numPredsPerClass, DT_SCORE),
         sortScoresPerImageWorkspaceSize(N, numClasses * topK, DT_SCORE));
     wss[7] = detectionForwardAnchorSize(N, C3, DT_ANCHOR);
-    return calculateTotalWorkspaceSize(wss, 7);
+    return calculateTotalWorkspaceSize(wss, 8);
 }
 
 namespace nvinfer1
