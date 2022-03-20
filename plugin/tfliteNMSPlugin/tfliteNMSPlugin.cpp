@@ -192,7 +192,6 @@ void TFLiteNMSPlugin::configurePlugin(const Dims* inputDims, int nbInputs, const
     boxesSize = 1;
     for (auto i = 0; i < inputDims[0].nbDims; i++)
     {
-        std::cout << i << ": " << inputDims[0].d[i] << std::endl;
         boxesSize *= inputDims[0].d[i];
     }
     scoresSize = inputDims[1].d[0] * inputDims[1].d[1];
